@@ -1,0 +1,72 @@
+
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 27
+    buildToolsVersion "27.0.3"
+
+    defaultConfig {
+        applicationId "poc.helloworld"
+        minSdkVersion 14
+        targetSdkVersion 26
+        versionCode 1
+        versionName "1.0"
+        multiDexEnabled true
+    }
+
+    buildTypes {
+        debug {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+import poc.utils.Versions
+import poc.plugin.AndroidPluginData
+
+println("!!!!!----------------------------------------------------------------!!!!!")
+println "\tGradle version = " + Versions.getGradleVersion()
+println "\tAndroid Gradle Plugin Version = " + Versions.getAndroidGradlePluginVersion()
+println("!!!!!----------------------------------------------------------------!!!!!")
+
+apply plugin: POCGradlePlugin
+
+class POCGradlePlugin implements Plugin<Project> {
+
+    final Map<String, com.android.build.gradle.internal.api.ApplicationVariantImpl> buildVariantMap = 
+        new TreeMap<String, com.android.build.gradle.internal.api.ApplicationVariantImpl>(String.CASE_INSENSITIVE_ORDER)
+
+    @Override
+    void apply(Project project) {
+
+        project.afterEvaluate {
+            project.plugins.withId('com.android.application') {
+                project.android.applicationVariants.all { variant ->
+                    println "================== variant = " + variant
+                    //println variant.getProperties().collect{it}.join('\n')
+                    println "=================="
+
+                    buildVariantMap[variant.name] = variant
+
+                    poc.plugin.AndroidPluginData apd = new poc.plugin.AndroidPluginData(project, variant)
+                }
+            }
+        }
+
+        project.android.registerTransform(new poc.transform.POCTransform(project, buildVariantMap, true))   // Java class transformation
+    }
+}
+
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile 'com.android.support:multidex:1.+'
+    compile 'com.android.support:appcompat-v7:26.+'
+    compile 'com.android.support:design:26.+'
+    testCompile 'junit:junit:4.12'
+}

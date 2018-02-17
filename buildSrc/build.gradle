@@ -1,0 +1,13 @@
+repositories {
+    mavenCentral()
+    jcenter()
+    google()
+}
+
+dependencies {
+    compile 'com.android.tools.build:gradle-api:3.0.0'
+    compile 'com.android.tools.build:gradle:3.0.0'
+    //compile 'com.android.tools.build:gradle-api:2.4.+'
+    //compile 'com.android.tools.build:gradle:2.4.+'
+    compile 'commons-io:commons-io:2.5'
+}
